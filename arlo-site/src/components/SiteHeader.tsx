@@ -8,10 +8,9 @@ import { Container } from "@/components/Container";
 
 const navLinks = [
   { label: "Platform", href: "/platform" },
-  { label: "Solutions", href: "/#solutions" },
-  { label: "How It Works", href: "/how-it-works" },
-  { label: "Benefits", href: "/#benefits" },
-  { label: "About", href: "/#about" },
+  { label: "Solutions", href: "/solutions" },
+  { label: "Benefits", href: "/benefits" },
+  { label: "About", href: "/about" },
 ];
 
 export function SiteHeader() {

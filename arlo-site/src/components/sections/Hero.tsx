@@ -5,6 +5,7 @@ import { AreaChart, Area, ResponsiveContainer } from "recharts";
 import { ArrowRight, PlayCircle, Sparkles } from "lucide-react";
 import { ButtonLink } from "@/components/Button";
 import { Container } from "@/components/Container";
+import { BlueprintBackground } from "@/components/BlueprintBackground";
 
 const backlogTrend = [
   { month: "Apr", value: 3.1 },
@@ -19,7 +20,8 @@ const backlogTrend = [
 export function Hero() {
   return (
     <section className="relative overflow-hidden bg-mist">
-      <Container className="grid gap-16 py-20 lg:grid-cols-2 lg:items-center lg:py-28">
+      <BlueprintBackground />
+      <Container className="relative grid gap-16 py-20 lg:grid-cols-2 lg:items-center lg:py-28">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
