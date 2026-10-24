@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Clock, RotateCcw } from "lucide-react";
 import { Container } from "@/components/Container";
 import { Logo } from "@/components/Logo";
-import { Button } from "@/components/Button";
+import { Button, ButtonLink } from "@/components/Button";
 import { useDemo } from "@/components/demo/DemoProvider";
 import { totalCurrentBacklog } from "@/lib/demo/calculations";
 
@@ -73,6 +73,12 @@ export default function DemoOverview() {
                   maximumFractionDigits: 0,
                 })}
               />
+            </div>
+
+            <div className="mt-6 flex justify-center">
+              <ButtonLink href="/demo/jobs" variant="secondary" size="sm">
+                View Job Register
+              </ButtonLink>
             </div>
 
             <div className="mx-auto mt-10 max-w-2xl rounded-2xl border border-steel/30 bg-white p-8 text-center">

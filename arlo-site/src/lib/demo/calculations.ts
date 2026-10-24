@@ -79,6 +79,19 @@ export function totalCurrentBacklog(dataset: ArloDataset): number {
   );
 }
 
+/** Budget vs. actual hours and cost for a job, summed across all its phases. */
+export function jobBudgetVsActual(dataset: ArloDataset, jobId: string) {
+  const phases = dataset.jobPhases.filter((p) => p.jobId === jobId);
+  const budgetHours = sum(phases.map((p) => p.budgetHours));
+  const budgetCost = sum(phases.map((p) => p.budgetCost));
+  return {
+    budgetHours,
+    budgetCost,
+    actualHours: actualHours(dataset.jobCosts, jobId),
+    actualCost: actualCost(dataset.jobCosts, jobId),
+  };
+}
+
 function sum(values: number[]): number {
   return Math.round(values.reduce((a, b) => a + b, 0) * 100) / 100;
 }
