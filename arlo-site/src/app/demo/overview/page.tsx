@@ -85,6 +85,9 @@ export default function DemoOverview() {
               <ButtonLink href="/demo/estimating" variant="secondary" size="sm">
                 Estimating
               </ButtonLink>
+              <ButtonLink href="/demo/backlog" variant="secondary" size="sm">
+                Backlog
+              </ButtonLink>
             </div>
 
             <div className="mx-auto mt-10 max-w-2xl rounded-2xl border border-steel/30 bg-white p-8 text-center">
