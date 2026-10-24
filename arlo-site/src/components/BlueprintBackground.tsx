@@ -38,15 +38,11 @@ export function BlueprintBackground() {
           <rect x="1120" y="470" width="60" height="90" />
         </g>
 
-        {/* Dimension lines and annotations */}
+        {/* Dimension line under the elevation drawing only -- kept clear of the text column */}
         <g stroke="#5B8090" strokeWidth="1" fill="none" opacity="0.2">
           <line x1="980" y1="610" x2="1320" y2="610" />
           <line x1="980" y1="600" x2="980" y2="620" />
           <line x1="1320" y1="600" x2="1320" y2="620" />
-          <circle cx="200" cy="180" r="90" />
-          <circle cx="200" cy="180" r="4" fill="#5B8090" stroke="none" />
-          <line x1="110" y1="180" x2="290" y2="180" strokeDasharray="4 6" />
-          <line x1="200" y1="90" x2="200" y2="270" strokeDasharray="4 6" />
         </g>
 
         <rect width="1600" height="800" fill="url(#blueprintFade)" />

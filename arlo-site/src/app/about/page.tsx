@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Container } from "@/components/Container";
@@ -94,8 +95,15 @@ export default function AboutPage() {
             </div>
 
             <div className="mx-auto mt-10 flex max-w-2xl flex-col items-center gap-6 rounded-2xl border border-steel/30 bg-white p-10 text-center sm:flex-row sm:text-left">
-              <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-navy text-2xl font-bold text-white">
-                ZB
+              <div className="h-28 w-28 shrink-0 overflow-hidden rounded-full border-4 border-navy bg-navy">
+                <Image
+                  src="/zeb-benson.jpg"
+                  alt="Zeb Benson"
+                  width={224}
+                  height={224}
+                  className="h-full w-full object-cover"
+                  priority
+                />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-navy">Zeb Benson</h3>
