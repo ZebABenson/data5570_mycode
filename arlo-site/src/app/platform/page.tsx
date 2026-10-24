@@ -94,7 +94,7 @@ export default function PlatformPage() {
           <Container>
             <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-center">
               <div className="relative mx-auto flex h-[420px] w-full max-w-md items-center justify-center">
-                <div className="absolute flex h-32 w-32 flex-col items-center justify-center rounded-full border-2 border-navy bg-navy text-center text-white shadow-lg">
+                <div className="absolute z-10 flex h-32 w-32 flex-col items-center justify-center rounded-full border-2 border-navy bg-navy text-center text-white shadow-lg">
                   <span className="text-[10px] font-semibold tracking-wide uppercase opacity-70">
                     One
                   </span>
@@ -121,7 +121,7 @@ export default function PlatformPage() {
                       style={{
                         transform: `translate(${x}px, ${y}px)`,
                       }}
-                      className={`absolute flex h-24 w-24 flex-col items-center justify-center gap-1.5 rounded-2xl border p-2 text-center text-xs font-semibold transition-all ${
+                      className={`absolute z-10 flex h-24 w-24 flex-col items-center justify-center gap-1.5 rounded-2xl border p-2 text-center text-xs font-semibold transition-all ${
                         isActive
                           ? "border-teal bg-teal text-white shadow-lg"
                           : "border-steel/50 bg-white text-navy hover:border-teal/60"

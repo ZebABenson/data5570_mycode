@@ -35,7 +35,7 @@ export function HowItWorks() {
         <div className="mt-16 grid gap-8 lg:grid-cols-3">
           {steps.map(({ icon: Icon, step, title, body }, i) => (
             <div key={step} className="relative">
-              <div className="flex items-center gap-4">
+              <div className="relative z-10 flex items-center gap-4 bg-white pr-2">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-navy text-white">
                   <Icon className="h-5 w-5" />
                 </div>
@@ -44,7 +44,7 @@ export function HowItWorks() {
               <h3 className="mt-5 text-xl font-bold text-navy">{title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-navy/60">{body}</p>
               {i < steps.length - 1 && (
-                <div className="absolute top-6 left-[calc(100%-1rem)] hidden h-px w-[calc(100%-2rem)] bg-steel/40 lg:block" />
+                <div className="absolute top-6 left-full hidden h-px w-8 bg-steel/40 lg:block" />
               )}
             </div>
           ))}
