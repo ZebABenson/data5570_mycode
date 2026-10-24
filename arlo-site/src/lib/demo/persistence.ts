@@ -60,6 +60,11 @@ function getDb() {
         }
       },
     });
+    // Surface a genuine open failure loudly (e.g. private-browsing storage
+    // restrictions) instead of leaving callers hanging on an unsettled promise.
+    dbPromise.catch((err) => {
+      console.error("ARLO demo: failed to open IndexedDB", err);
+    });
   }
   return dbPromise;
 }
