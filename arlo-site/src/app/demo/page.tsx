@@ -2,13 +2,29 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { Container } from "@/components/Container";
 import { Logo } from "@/components/Logo";
-import { ButtonLink } from "@/components/Button";
+import { Button } from "@/components/Button";
+import { useDemo } from "@/components/demo/DemoProvider";
 
 export default function DemoWelcome() {
-  const [companyName, setCompanyName] = useState("Summit Engineering Group");
+  const { meta, loading, renameCompany } = useDemo();
+  const [companyName, setCompanyName] = useState("");
+  const [entering, setEntering] = useState(false);
+  const router = useRouter();
+
+  const placeholder = meta?.companyName ?? "Summit Engineering Group";
+
+  async function handleEnter() {
+    setEntering(true);
+    const trimmed = companyName.trim();
+    if (trimmed && meta && trimmed !== meta.companyName) {
+      await renameCompany(trimmed);
+    }
+    router.push("/demo/overview");
+  }
 
   return (
     <main className="flex min-h-screen flex-col bg-mist">
@@ -46,21 +62,24 @@ export default function DemoWelcome() {
             <input
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
-              className="mt-2 w-full rounded-lg border border-steel/50 px-4 py-2.5 text-sm text-navy focus:border-teal focus:outline-none"
+              placeholder={loading ? "Loading..." : placeholder}
+              className="mt-2 w-full rounded-lg border border-steel/50 px-4 py-2.5 text-sm text-navy placeholder:text-navy/40 focus:border-teal focus:outline-none"
             />
           </div>
 
-          <ButtonLink
-            href="/demo/overview"
+          <Button
             size="lg"
             className="mt-8 w-full justify-center"
+            onClick={handleEnter}
+            disabled={loading || entering}
           >
-            Enter Demo Workspace
+            {entering ? "Opening workspace..." : "Enter Demo Workspace"}
             <ArrowRight className="h-4 w-4" />
-          </ButtonLink>
+          </Button>
 
           <p className="mt-4 text-xs text-navy/40">
-            No account needed. All data is simulated and resets on request.
+            No account needed. All data is simulated, saved only in this
+            browser, and resets automatically after seven days.
           </p>
         </div>
       </div>
