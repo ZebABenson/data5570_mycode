@@ -75,9 +75,12 @@ export default function DemoOverview() {
               />
             </div>
 
-            <div className="mt-6 flex justify-center">
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
               <ButtonLink href="/demo/jobs" variant="secondary" size="sm">
                 View Job Register
+              </ButtonLink>
+              <ButtonLink href="/demo/fee-development" variant="secondary" size="sm">
+                Fee Development
               </ButtonLink>
             </div>
 
