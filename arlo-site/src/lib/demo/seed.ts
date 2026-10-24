@@ -363,7 +363,7 @@ function buildOwners(rng: Rng, clients: Client[], ownerTypes: OwnerType[]): Owne
 // Jobs, phases, costs, fees, invoices
 // ---------------------------------------------------------------------------
 
-const PHASES_BY_WORK_TYPE: Record<WorkType, PhaseName[]> = {
+export const PHASES_BY_WORK_TYPE: Record<WorkType, PhaseName[]> = {
   "New Construction": [
     "Schematic Design",
     "Design Development",
