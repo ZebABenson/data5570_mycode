@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, RotateCcw } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
 import { Container } from "@/components/Container";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/Button";
@@ -18,11 +19,23 @@ import { PHASES_BY_WORK_TYPE } from "@/lib/demo/seed";
 import { findClient } from "@/lib/demo/lookups";
 import { fmtCurrency, fmtNumber, fmtPercent } from "@/lib/demo/format";
 import type { WorkType } from "@/lib/demo/types";
+import { convertProposalToJob, nextJobId, nextJobNumber } from "@/lib/demo/jobConversion";
+
+function todayIso() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function addMonthsIso(iso: string, months: number) {
+  const d = new Date(iso + "T00:00:00Z");
+  d.setUTCMonth(d.getUTCMonth() + months);
+  return d.toISOString().slice(0, 10);
+}
 
 const WORK_TYPES: WorkType[] = ["New Construction", "Renovation", "Addition", "Assessment"];
 
 export default function EstimatingPage() {
   const { dataset, loading, updateDataset } = useDemo();
+  const router = useRouter();
 
   const [disciplineId, setDisciplineId] = useState("disc-structural");
   const [projectTypeId, setProjectTypeId] = useState("pt-office");
@@ -37,6 +50,20 @@ export default function EstimatingPage() {
   const [reimbursable, setReimbursable] = useState<Record<string, number>>({});
   const [proposedFee, setProposedFee] = useState(0);
   const [saved, setSaved] = useState(false);
+
+  // Fields needed to set up a job that aren't captured on a Proposal yet.
+  const [ownerId, setOwnerId] = useState("");
+  const [pmEmployeeId, setPmEmployeeId] = useState("");
+  const [structuralSystemIds, setStructuralSystemIds] = useState<string[]>([]);
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [stateCode, setStateCode] = useState("");
+  const [zip, setZip] = useState("");
+  // Seeded empty; the reset effect below fills these in client-side (avoids
+  // baking `new Date()` into the static prerender).
+  const [startDate, setStartDate] = useState("");
+  const [estEndDate, setEstEndDate] = useState("");
+  const [winning, setWinning] = useState(false);
 
   const pendingProposals = useMemo(
     () => dataset?.proposals.filter((p) => p.status === "Pending") ?? [],
@@ -91,6 +118,23 @@ export default function EstimatingPage() {
     const proposal = dataset?.proposals.find((p) => p.id === selectedProposalId);
     setProposedFee(proposal?.proposedFee ?? recommendation.mid);
     setSaved(false);
+
+    const client = proposal ? findClient(dataset!, proposal.clientId) : undefined;
+    const matchingOwner = proposal
+      ? dataset?.owners.find((o) => o.id === proposal.ownerId || o.name === client?.name)
+      : undefined;
+    setOwnerId(matchingOwner?.id ?? dataset?.owners[0]?.id ?? "");
+    setPmEmployeeId(dataset?.employees.find((e) => e.role === "Project Manager")?.id ?? "");
+    setStructuralSystemIds(
+      disciplineId === "disc-structural" ? [dataset?.lookups.structuralSystems[0]?.id ?? ""] : []
+    );
+    setAddress("");
+    setCity(client?.city ?? "");
+    setStateCode(client?.state ?? "UT");
+    setZip(client?.zip ?? "");
+    setStartDate(todayIso());
+    setEstEndDate(addMonthsIso(todayIso(), 9));
+    setWinning(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetSignature, datasetReady]);
 
@@ -128,6 +172,53 @@ export default function EstimatingPage() {
       proposals: d.proposals.map((p) => (p.id === selectedProposalId ? { ...p, proposedFee } : p)),
     }));
     setSaved(true);
+  }
+
+  function handleWin() {
+    if (
+      !selectedProposalId ||
+      !dataset ||
+      !ownerId ||
+      !pmEmployeeId ||
+      !address ||
+      !city ||
+      !zip ||
+      !startDate ||
+      !estEndDate
+    )
+      return;
+    setWinning(true);
+
+    const jobId = nextJobId(dataset);
+    const jobNumber = nextJobNumber(dataset, startDate.slice(2, 4));
+
+    updateDataset((d) =>
+      convertProposalToJob(d, jobId, jobNumber, {
+        proposalId: selectedProposalId,
+        ownerId,
+        pmEmployeeId,
+        workType,
+        complexity,
+        deliveryMethodId,
+        structuralSystemIds,
+        address,
+        city,
+        state: stateCode,
+        zip,
+        size,
+        sizeUnit: "SF",
+        startDate,
+        estEndDate,
+        proposedFee,
+        phaseBudgets: phases.map((phase) => ({
+          phaseName: phase,
+          budgetHours: ROLES.reduce((sum, role) => sum + (hours[`${phase}|${role}`] ?? 0), 0),
+          budgetCost: phaseTotal(phase),
+        })),
+      })
+    );
+
+    router.push(`/demo/jobs/${jobId}`);
   }
 
   return (
@@ -373,6 +464,141 @@ export default function EstimatingPage() {
               above. Source job cost records are never modified&mdash;this is a separate, editable
               draft estimate.
             </p>
+
+            {selectedProposalId && (
+              <div className="rounded-2xl border border-teal/40 bg-white p-6">
+                <p className="text-sm font-semibold text-navy">
+                  Ready to turn this proposal into a job?
+                </p>
+                <p className="mt-1 text-xs text-navy/50">
+                  Confirm the remaining attributes below, then mark this proposal won. ARLO will
+                  create a permanent job record, carry the fee and phase budgets over, and the job
+                  will immediately appear in the register and in current backlog.
+                </p>
+
+                <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                  <Field label="Owner">
+                    <select
+                      value={ownerId}
+                      onChange={(e) => setOwnerId(e.target.value)}
+                      className="w-full rounded-lg border border-steel/50 px-3 py-2 text-sm text-navy focus:border-teal focus:outline-none"
+                    >
+                      {dataset.owners.map((o) => (
+                        <option key={o.id} value={o.id}>
+                          {o.name}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+
+                  <Field label="Project Manager">
+                    <select
+                      value={pmEmployeeId}
+                      onChange={(e) => setPmEmployeeId(e.target.value)}
+                      className="w-full rounded-lg border border-steel/50 px-3 py-2 text-sm text-navy focus:border-teal focus:outline-none"
+                    >
+                      {dataset.employees
+                        .filter((e) => e.role === "Project Manager")
+                        .map((e) => (
+                          <option key={e.id} value={e.id}>
+                            {e.firstName} {e.lastName}
+                          </option>
+                        ))}
+                    </select>
+                  </Field>
+
+                  {disciplineId === "disc-structural" && (
+                    <Field label="Structural System">
+                      <select
+                        value={structuralSystemIds[0] ?? ""}
+                        onChange={(e) => setStructuralSystemIds([e.target.value])}
+                        className="w-full rounded-lg border border-steel/50 px-3 py-2 text-sm text-navy focus:border-teal focus:outline-none"
+                      >
+                        {dataset.lookups.structuralSystems.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                  )}
+
+                  <Field label="Project Address">
+                    <input
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="Street address"
+                      className="w-full rounded-lg border border-steel/50 px-3 py-2 text-sm text-navy focus:border-teal focus:outline-none"
+                    />
+                  </Field>
+
+                  <Field label="City">
+                    <input
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className="w-full rounded-lg border border-steel/50 px-3 py-2 text-sm text-navy focus:border-teal focus:outline-none"
+                    />
+                  </Field>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="State">
+                      <input
+                        value={stateCode}
+                        onChange={(e) => setStateCode(e.target.value)}
+                        className="w-full rounded-lg border border-steel/50 px-3 py-2 text-sm text-navy focus:border-teal focus:outline-none"
+                      />
+                    </Field>
+                    <Field label="Zip">
+                      <input
+                        value={zip}
+                        onChange={(e) => setZip(e.target.value)}
+                        className="w-full rounded-lg border border-steel/50 px-3 py-2 text-sm text-navy focus:border-teal focus:outline-none"
+                      />
+                    </Field>
+                  </div>
+
+                  <Field label="Start Date">
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full rounded-lg border border-steel/50 px-3 py-2 text-sm text-navy focus:border-teal focus:outline-none"
+                    />
+                  </Field>
+
+                  <Field label="Est. End Date">
+                    <input
+                      type="date"
+                      value={estEndDate}
+                      onChange={(e) => setEstEndDate(e.target.value)}
+                      className="w-full rounded-lg border border-steel/50 px-3 py-2 text-sm text-navy focus:border-teal focus:outline-none"
+                    />
+                  </Field>
+                </div>
+
+                <div className="mt-6 flex items-center gap-3 border-t border-steel/20 pt-5">
+                  <Button
+                    onClick={handleWin}
+                    disabled={
+                      winning ||
+                      !ownerId ||
+                      !pmEmployeeId ||
+                      !address ||
+                      !city ||
+                      !zip ||
+                      !startDate ||
+                      !estEndDate
+                    }
+                  >
+                    {winning ? "Setting Up Job..." : "Mark Proposal as Won & Set Up Job"}
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                  {(!address || !city || !zip) && (
+                    <p className="text-xs text-navy/40">Fill in the project address to continue.</p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </Container>
