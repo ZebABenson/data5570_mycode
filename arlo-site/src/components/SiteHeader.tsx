@@ -34,6 +34,9 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
+          <ButtonLink href="/login" variant="ghost" size="sm">
+            Log In
+          </ButtonLink>
           <ButtonLink href="/demo" size="sm">
             Test Demo
           </ButtonLink>
@@ -65,6 +68,9 @@ export function SiteHeader() {
               </a>
             ))}
             <div className="mt-2 flex flex-col gap-3">
+              <ButtonLink href="/login" variant="secondary">
+                Log In
+              </ButtonLink>
               <ButtonLink href="/demo">Test Demo</ButtonLink>
               <ButtonLink href="/#book-a-demo" variant="secondary">
                 Book a Demo

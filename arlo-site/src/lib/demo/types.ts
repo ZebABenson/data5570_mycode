@@ -234,6 +234,29 @@ export interface Proposal {
   status: ProposalStatus;
   decisionDate?: string;
   lossReason?: string;
+  // Optional fields captured by the "New Project" intake form. Not part of
+  // the original data model / seed generator, so every historical proposal
+  // simply omits them.
+  projectNumber?: string;
+  contactId?: string;
+  contractorName?: string;
+  principalEmployeeId?: string;
+  pmEmployeeId?: string;
+  workType?: WorkType;
+  complexity?: 1 | 2 | 3 | 4 | 5;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  size?: number;
+  sizeUnit?: string;
+  startDate?: string;
+  estEndDate?: string;
+  probability?: number; // 0..100
+  feeStructureId?: string;
+  serviceTypeId?: string;
+  billingTerms?: string;
+  comments?: string;
 }
 
 export type PhaseName =

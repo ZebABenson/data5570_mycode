@@ -146,3 +146,23 @@ export async function resetDemoState(companyName?: string): Promise<DemoState> {
   const existingMeta = await getValue<DemoMeta>("demoMeta");
   return initDemoState(companyName ?? existingMeta?.companyName ?? "Summit Engineering Group");
 }
+
+// ---------------------------------------------------------------------------
+// New Project form draft (saved separately from the dataset so an
+// unfinished draft doesn't get mixed in with real, submitted projects).
+// ---------------------------------------------------------------------------
+
+const PROJECT_DRAFT_KEY = "newProjectDraft";
+
+export async function saveProjectDraft(draft: unknown): Promise<void> {
+  await setValue(PROJECT_DRAFT_KEY, draft);
+}
+
+export async function loadProjectDraft<T>(): Promise<T | undefined> {
+  return getValue<T>(PROJECT_DRAFT_KEY);
+}
+
+export async function clearProjectDraft(): Promise<void> {
+  const db = await getDb();
+  await db.delete(STORE_NAME, PROJECT_DRAFT_KEY);
+}
