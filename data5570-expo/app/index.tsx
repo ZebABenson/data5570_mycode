@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Link, Stack } from 'expo-router';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Container } from '@/components/Container';
 import { TaskList } from '@/components/TaskList';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { addTask } from '@/store/tasksSlice';
+import { addTask, fetchTasks } from '@/store/tasksSlice';
 
 export default function Home() {
   // useState hook: tracks the text field before it becomes a task.
@@ -15,6 +15,14 @@ export default function Home() {
 
   const dispatch = useAppDispatch();
   const taskCount = useAppSelector((state) => state.tasks.items.length);
+  const status = useAppSelector((state) => state.tasks.status);
+  const error = useAppSelector((state) => state.tasks.error);
+
+  // Loads the task list from the Django backend (GET /api/tasks/) once,
+  // when this screen first mounts.
+  useEffect(() => {
+    dispatch(fetchTasks());
+  }, [dispatch]);
 
   const handleAdd = () => {
     const trimmed = text.trim();
@@ -30,7 +38,15 @@ export default function Home() {
       <Stack.Screen options={{ title: 'Home' }} />
       <Container>
         <Text style={styles.heading}>My Tasks</Text>
-        <Text style={styles.subheading}>{taskCount} task(s)</Text>
+        <Text style={styles.subheading}>
+          {status === 'loading' ? 'Loading tasks...' : `${taskCount} task(s)`}
+        </Text>
+        {status === 'loading' && <ActivityIndicator style={styles.spinner} />}
+        {status === 'failed' && (
+          <Text style={styles.error}>
+            {error ?? 'Something went wrong talking to the server.'}
+          </Text>
+        )}
 
         <TextInput
           style={styles.input}
@@ -64,6 +80,13 @@ const styles = StyleSheet.create({
   subheading: {
     fontSize: 14,
     color: '#666',
+    marginBottom: 12,
+  },
+  spinner: {
+    marginBottom: 12,
+  },
+  error: {
+    color: '#e11d48',
     marginBottom: 12,
   },
   input: {

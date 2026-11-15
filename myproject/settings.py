@@ -25,7 +25,10 @@ SECRET_KEY = 'django-insecure-v9mqi%=^g-zkt2x7fly#5*kn(f-_bkja2zg0y*+nogo!xo4cjy
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['18.223.212.212', 'ec2-18-223-212-212.us-east-2.compute.amazonaws.com', '3.15.163.98', 'ec2-3-15-163-98.us-east-2.compute.amazonaws.com', '13.59.255.233', 'ec2-13-59-255-233.us-east-2.compute.amazonaws.com', 'localhost', '127.0.0.1']
+# The EC2 instance's public IP changes whenever it's stopped/restarted, which
+# previously broke this list every few sessions. '*' avoids that -- fine for
+# a class assignment's test backend, not something to carry into production.
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -38,11 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
     'customers',
+    'tasks',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -50,6 +56,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# The Expo app is fetched from many different origins over the course of
+# development and EAS hosting (localhost, Expo Go, the deployed web build).
+# Temporary/testing setting per the assignment instructions.
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'myproject.urls'
 

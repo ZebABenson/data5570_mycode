@@ -21,7 +21,7 @@ export const TaskList = () => {
           key={task.id}
           text={task.text}
           done={task.done}
-          onToggle={() => dispatch(toggleTask(task.id))}
+          onToggle={() => dispatch(toggleTask({ id: task.id, done: !task.done }))}
           onRemove={() => dispatch(removeTask(task.id))}
         />
       ))}
